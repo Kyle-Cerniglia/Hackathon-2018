@@ -11,7 +11,7 @@ Blank Readme
 # Secondary Features:
 ## Gesture Control: Certain gestures changes the behavior of the vehicle, changing its goal or path
 ## Advanced Object Recognition: If the vehicle comes across a certain-colored object, it can make a guess based on its physical characteristics about how it should interact with the object
-## Compliment: "Your hair looks nice today"
+## Compliment: "Those are some fresh boots"
 
 # Inputs:
 ## Visual: Color, Distance
