@@ -1,0 +1,12 @@
+import serial
+import time
+
+port = serial.Serial(...)
+
+while !goal:
+	while !seeGreen:
+		port.write("turn counterclockwise 60")
+	while seeGreen:
+		port.write("forward a short time")
+		if obstacle
+			# perform avoidance maneuver
