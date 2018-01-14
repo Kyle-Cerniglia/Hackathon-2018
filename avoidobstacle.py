@@ -12,20 +12,20 @@ if ("""object is red"""):
 else:
     radius = 1
 
-port.write("revR63")
+port.write("~2632")
 
 while (angle < 90):
     #repeats until on the opposite side of object
     port.read("getdist")
     while(dist >= radius + 0.2 or dist <= radius - 0.2):
         port.read("getsensor4")
-        port.write("f")
+        port.write("~60.21")
     oldAngle = angle
     if (dist < radius):
         #turn 5 degrees right by running left motor forward
-        port.write("fL5")
+        port.write("~1052")
     else:
-        port.write("fR5")
+        port.write("~4052")
         #turn 5 degrees left by running right motor forward
 
-port.write("fL90")
+port.write("~1902")

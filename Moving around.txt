@@ -1,14 +1,36 @@
 import serial
 import time
+import avoidobstacle.py
+import picamera
+
+camera = picamera.Picamera()
+for x in range(0,6): #does an inital sweep of surroundings looking for green objective
+	camera.capture('image.jpg')
+	objectType = identifyImage('image.jpg')
+	if(objectType == green):
+		seeGreen = 1
+		break
+	port.write("~3603")
+while goal != 1:	
+	while seeGreen != 1:
+		port.write("~3603")
+		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
+			port.write("~0603")
+			avoidobstacle
+	while seeGreen == 1:
+		port.write("forward")
+		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
+			port.write("~0603")
+			avoidobstacle
 
 port = serial.Serial("\dev\ttyAMA0",baudrate=9600,timeout=3.0)
 
 while not(goal):
-	while not(seeGreen):
-		port.write("CC60")
+	while not(green):
+		port.write("~0603")
 		if angle < 30:
-			port.write("f")
+			port.write("~61.03")
 	while seeGreen:
-		port.write("f")
+		port.write("~61.03")
 		if obstacle
-			# perform avoidance maneuver
+			
