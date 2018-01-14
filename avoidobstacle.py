@@ -25,7 +25,8 @@ while (angle < 90):
         #turn 5 degrees right by running left motor forward
         port.write("~1052")
     else:
-        port.write("~4052")
         #turn 5 degrees left by running right motor forward
+        port.write("~4052")
+        
 
 port.write("~1902")
