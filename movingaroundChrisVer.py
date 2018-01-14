@@ -5,7 +5,7 @@ import time
 def encounterObj(objectColor):
     #assigns the distance the robot should stay around the obstacle
 	if (objectColor == Red):
-                radius = 3
+		radius = 3
 	else:
 		radius = 1
 
@@ -13,7 +13,7 @@ def encounterObj(objectColor):
 	dist = sensor1data
 
 	while(dist > radius):
-			port.write("~6022") #until the robot gets too close the object move forward
+		port.write("~6022") #until the robot gets too close the object move forward
 
 	port.write("~2632") #turn right 63 deg
 
