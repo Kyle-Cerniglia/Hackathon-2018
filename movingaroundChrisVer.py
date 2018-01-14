@@ -1,7 +1,9 @@
 import serial
 import picamera
+import time
 
 def readSerial():
+	port.write("~9000")
 	if(port.in_waiting >= 20):
 		inputData = str(port.read(31))
 		print(inputData)
@@ -32,26 +34,37 @@ sensor2 = 0
 sensor3 = 0
 sensor4 = 0
 
-while True
+while True:
 	readSerial()
-	
+	port.write("~6021")
+	time.sleep(1)
+	port.write("~8000")
+#camera = picamera.PiCamera()
 '''
-camera = picamera.PiCamera()
 for x in range(0,6): #does an inital sweep of surroundings looking for green objective
-	camera.capture('image.jpg')
-	objectType = identifyImage('image.jpg')
+	#camera.capture('image.jpg')
+	#objectType = identifyImage('image.jpg')
 	if(objectType == green):
 		seeGreen = 1
 		break
-	port.write("left 60")
+	port.write("left 60")#left 60
 while goal != 1:	
 	while seeGreen != 1:
-		port.write("left 60")
+		readSerial()
+		port.write("left 60")#left 60
+		readSerial()
 		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
-			port.write("right 63")
+			sensor1 = 0
+			sensor2 = 0
+			sensor3 = 0
+			sensor4 = 0
+			port.write("right 63")#right 63
 	while seeGreen == 1:
-		port.write("forward")
+		port.write("forward")#forward
 		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
-			port.write("right 63")
-'''						
-						
+			sensor1 = 0
+			sensor2 = 0
+			sensor3 = 0
+			sensor4 = 0
+			port.write("right 63")#right 63
+'''
