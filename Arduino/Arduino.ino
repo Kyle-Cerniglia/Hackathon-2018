@@ -594,7 +594,7 @@ void command(int cmd, double degsec, int speeed){
       break;
 
     case 2://right with right
-      drive_degrees_r_r(speeed * 64, degsec);
+      drive_degrees_r_r(spe\eed * 64, degsec);
       break;
 
     case 3://turn left

@@ -3,9 +3,9 @@ import picamera
 import time
 
 def encounterObj(objectColor):
-	#assigns the distance the robot should stay around the obstacle
-	if (objectColor == red):
-		radius = 3
+    #assigns the distance the robot should stay around the obstacle
+	if (objectColor == Red):
+                radius = 3
 	else:
 		radius = 1
 
@@ -13,7 +13,7 @@ def encounterObj(objectColor):
 	dist = sensor1data
 
 	while(dist > radius):
-		port.write("~60.22") #until the robot gets too close the object move forward
+			port.write("~6022") #until the robot gets too close the object move forward
 
 	port.write("~2632") #turn right 63 deg
 
@@ -26,7 +26,7 @@ def encounterObj(objectColor):
 			else (dist >= radius): #if the robot is too far from the obstacle
 				port.write("~4052")
 		else:
-			port.write("~60.22")
+			port.write("~6022")
 
 	port.write("~1902") #turns right 90 deg
 
