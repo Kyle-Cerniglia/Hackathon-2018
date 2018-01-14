@@ -35,7 +35,7 @@ int timenew = 0;
 int gyrooffset = 350;
 double heading = 0;
 double oldheading = 0;
-char txpacket[29];
+char rxpacket[4];
 
 LSM6 imu;
 
@@ -52,6 +52,8 @@ void drive_left_forward(int speeed);
 void drive_left_backwards(int speeed);
 void drive_degrees(int speeed, int degree);
 void packet_tx();
+void packet_rx();
+void command(int cmd, double degsec, int speeed);
 
 void setup() {
   
@@ -75,21 +77,23 @@ void setup() {
   digitalWrite(MOTOR_LF, LOW);
   digitalWrite(MOTOR_RF, LOW);
   digitalWrite(MOTOR_RB, LOW);
-
   Serial.begin(9600);
+  Serial1.begin(9600);
   Wire.begin();
   
   if (!imu.init()){
-    Serial.println("Failed to detect and initialize IMU!");
     while (1);
   }
   imu.enableDefault();
-  
+  //while(!Serial1.available());
+
+  drive_degrees(128, -90);
+  //drive_stop();
 }
 
 void loop() {
-  poll_heading();
-  packet_tx();
+  //poll_heading();
+  //packet_tx();
 }
 
 double IR_convert(int range){//Converts IR sensor data into inches
@@ -191,32 +195,43 @@ void drive_left_backwards(int speeed){
 
 void drive_degrees(int speeed, int degree){
   int startheading = heading;
-  if(degree > 0){
+  int temp = 0;
+  if(degree >= 0){
     drive_right(speeed);
     if(startheading + degree > 180){
-      while(heading < startheading + degree){
+      
+      temp = -(360 - startheading - degree);
+      while(heading < temp || heading > 0){
         poll_heading();
       }
     }
     else{
+      
       while(heading < startheading + degree){
-        poll_heading();
+        //digitalWrite(13, HIGH);
+        Serial.println((int)heading);
+        poll_heading();        
       }
     }
-    
   }
   else{
     drive_left(speeed);
+    if(startheading - degree < -180){
+      temp = 360 + startheading - degree;
+      while(heading > temp || heading < 0){
+        poll_heading();
+      }
+    }
     while(heading > startheading + degree){
       poll_heading();
     }
   }
-  drive_stop;
+  drive_stop();
 }
 
 void packet_tx(){
   int temp = 0;
-  Serial1.print("start");
+  Serial1.print("start,");
   temp = (int)(analogRead(IR_FC_RANGE) / 10);
   if(temp < 100){
     Serial1.print("0");
@@ -277,6 +292,53 @@ void packet_tx(){
     }
   }
   Serial1.print(abs(temp));
-  Serial1.print("stop");  
+  Serial1.print(",stop");  
+}
+
+void packet_rx(){
+  int cmd = 0;
+  double degsec = 0;
+  int speeed = 0;
+  if(Serial1.available()){
+    if(Serial1.read() == '~'){
+      Serial1.readBytes(rxpacket, 4);
+      cmd = atoi(rxpacket[0]);
+      speeed = atoi(rxpacket[3]);
+      degsec = atoi(rxpacket[1]) * 10 + atoi(rxpacket[2]);
+      command(cmd, degsec, speeed);
+    }
+  }  
+}
+
+void command(int cmd, double degsec, int speeed){
+  switch(cmd){
+    case 0://turn right
+      drive_degrees(speeed * 64, degsec);
+      break;
+
+    case 3://turn left
+      drive_degrees(speeed * 64, degsec);
+      break;
+
+     case 6://forward
+      drive_forward(speeed * 64);
+      delay(degsec * 100);
+      drive_stop();
+      break;
+
+     case 7://backwards
+      drive_backwards(speeed * 64);
+      delay(degsec * 100);
+      drive_stop();
+      break;
+
+     case 8://stop
+      drive_stop();
+      break;
+
+     default:
+      break;
+  }
+  
 }
 
