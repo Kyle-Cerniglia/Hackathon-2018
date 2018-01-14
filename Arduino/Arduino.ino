@@ -1,5 +1,7 @@
 #include <Wire.h>
 #include <LSM6.h>
+#include <String.h>
+#include <stdio.h>
 
 /*
 The sensor outputs provided by the library are the raw
@@ -85,15 +87,16 @@ void setup() {
     while (1);
   }
   imu.enableDefault();
-  //while(!Serial1.available());
 
-  drive_degrees(128, -90);
-  //drive_stop();
 }
 
 void loop() {
-  //poll_heading();
-  //packet_tx();
+  
+  while(!Serial1.available()){
+    poll_heading();
+  }
+  
+  packet_rx();
 }
 
 double IR_convert(int range){//Converts IR sensor data into inches
@@ -209,7 +212,7 @@ void drive_degrees(int speeed, int degree){
       
       while(heading < startheading + degree){
         //digitalWrite(13, HIGH);
-        Serial.println((int)heading);
+        //Serial.println((int)heading);
         poll_heading();        
       }
     }
@@ -296,18 +299,140 @@ void packet_tx(){
 }
 
 void packet_rx(){
+  
   int cmd = 0;
   double degsec = 0;
   int speeed = 0;
-  if(Serial1.available()){
-    if(Serial1.read() == '~'){
-      Serial1.readBytes(rxpacket, 4);
-      cmd = atoi(rxpacket[0]);
-      speeed = atoi(rxpacket[3]);
-      degsec = atoi(rxpacket[1]) * 10 + atoi(rxpacket[2]);
+  //if(Serial1.available()){
+    if(!strcmp(Serial1.read(),'~')){
+      Serial.print("PING");
+      //Serial1.readBytes(rxpacket, 4);
+      //Serial.println(rxpacket);
+      cmd = atoi(Serial1.read());
+      /*
+      Serial.println(rxpacket[0]);
+      Serial.println(rxpacket[1]);
+      Serial.println(rxpacket[2]);
+      if(!strcmp(rxpacket[0], "0")){
+        cmd = 0;
+      }
+      else if(!strcmp(rxpacket[0], "1")){
+        cmd = 1;
+      }
+      else if(!strcmp(rxpacket[0], "2")){
+        cmd = 2;
+      }
+      else if(!strcmp(rxpacket[0], "3")){
+        cmd = 3;
+      }
+      else if(!strcmp(rxpacket[0], "4")){
+        cmd = 4;
+      }
+      else if(!strcmp(rxpacket[0], "5")){
+        cmd = 5;
+      }
+      else if(!strcmp(rxpacket[0], "6")){
+        cmd = 6;
+      }
+      else if(!strcmp(rxpacket[0], "7")){
+        cmd = 7;
+      }
+      else if(!strcmp(rxpacket[0], "8")){
+        cmd = 8;
+      }
+      else{
+        cmd = 9;
+      }
+      */
+      Serial.print(":");
+      Serial.print(cmd);
+      degsec = atoi(Serial1.read()) * 10;
+      /*
+      if(!strcmp(rxpacket[1], '0')){
+        degsec = 0;
+      }
+      else if(!strcmp(rxpacket[1], '1')){
+        degsec = 10;
+      }
+      else if(!strcmp(rxpacket[1], '2')){
+        degsec = 20;
+      }
+      else if(!strcmp(rxpacket[1], '3')){
+        degsec = 30;
+      }
+      else if(!strcmp(rxpacket[1], '4')){
+        degsec = 40;
+      }
+      else if(!strcmp(rxpacket[1], '5')){
+        degsec = 50;
+      }
+      else if(!strcmp(rxpacket[1], '6')){
+        degsec = 60;
+      }
+      else if(!strcmp(rxpacket[1], '7')){
+        degsec = 70;
+      }
+      else if(!strcmp(rxpacket[1], '8')){
+        degsec = 80;
+      }
+      else{
+        degsec = 90;
+      }
+      */
+      degsec += atoi(Serial1.read());
+      /*
+      if(!strcmp(rxpacket[2], '0')){
+        degsec += 0;
+      }
+      else if(!strcmp(rxpacket[2], '1')){
+        degsec += 1;
+      }
+      else if(!strcmp(rxpacket[2], '2')){
+        degsec += 2;
+      }
+      else if(!strcmp(rxpacket[2], '3')){
+        degsec += 3;
+      }
+      else if(!strcmp(rxpacket[2], '4')){
+        degsec += 4;
+      }
+      else if(!strcmp(rxpacket[2], '5')){
+        degsec += 5;
+      }
+      else if(!strcmp(rxpacket[2], '6')){
+        degsec += 6;
+      }
+      else if(!strcmp(rxpacket[2], '7')){
+        degsec += 7;
+      }
+      else if(!strcmp(rxpacket[2], '8')){
+        degsec += 8;
+      }
+      else{
+        degsec += 9;
+      }
+      */
+      speeed = atoi(Serial1.read());
+      /*
+      if(!strcmp(rxpacket[3], '1')){
+        speeed = 1;
+      }
+      else if(!strcmp(rxpacket[3], '2')){
+        speeed = 2;
+      }
+      else if(!strcmp(rxpacket[3], '3')){
+        speeed = 3;
+      }
+      else{
+        speeed = 4;
+      }
+      */
+      Serial.print(":");
+      Serial.print(speeed);
+      
       command(cmd, degsec, speeed);
     }
-  }  
+  //}  
 }
 
 void command(int cmd, double degsec, int speeed){
@@ -334,6 +459,10 @@ void command(int cmd, double degsec, int speeed){
 
      case 8://stop
       drive_stop();
+      break;
+
+     case 9://request
+      packet_tx();
       break;
 
      default:
