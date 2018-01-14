@@ -1,7 +1,26 @@
 import serial
 import picamera
 
-port = serial.Serial("\dev\ttyAMA0",baudrate=9600,timeout=3.0)
+def readSerial():
+	if(port.in_waiting >= 20):
+		inputData = str(port.read(31))
+		print(inputData)
+		dataList = inputData.split(",")
+		sensor1Data = dataList[1]
+		sensor2Data = dataList[2]
+		sensor3Data = dataList[3]
+		sensor4Data = dataList[4]
+		heading = dataList[5]
+		if (sensor1Data <= 40):#this compares sensor value to see if object is within 4 inches
+			sensor1 = 1
+		if (sensor2Data <= 40):
+			sensor2 = 1
+		if (sensor3Data <= 40):
+			sensor3 = 1
+		if (sensor4Data <= 40):
+			sensor4 = 1
+
+port = serial.Serial("/dev/ttyAMA0",baudrate=9600,timeout=3.0)
 #sensor1 is middle front sensor
 #sensor2 is left front sensor
 #sensor3 is right front sensor
@@ -36,20 +55,3 @@ while goal != 1:
 			port.write("right 63")
 '''						
 						
-def readSerial():
-	inputData = port.read(20)
-	print(inputData)
-	dataList = inputData.split(",")
-	sensor1Data = dataList[0]
-	sensor2Data = dataList[1]
-	sensor3Data = dataList[2]
-	sensor4Data = dataList[3]
-	heading = dataList[4]
-	if (sensor1Data <= 40):#this compares sensor value to see if object is within 4 inches
-		sensor1 = 1
-	if (sensor2Data <= 40):
-		sensor2 = 1
-	if (sensor3Data <= 40):
-		sensor3 = 1
-	if (sensor4Data <= 40):
-		sensor4 = 1
