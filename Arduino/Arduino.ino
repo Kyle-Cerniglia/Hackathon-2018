@@ -53,6 +53,10 @@ void drive_right_backwards(int speeed);
 void drive_left_forward(int speeed);
 void drive_left_backwards(int speeed);
 void drive_degrees(int speeed, int degree);
+void drive_degrees_r_r(int speeed, int degree);
+void drive_degrees_r_l(int speeed, int degree);
+void drive_degrees_l_l(int speeed, int degree);
+void drive_degrees_l_r(int speeed, int degree);
 void packet_tx();
 void packet_rx();
 void command(int cmd, double degsec, int speeed);
@@ -201,6 +205,150 @@ void drive_degrees(int speeed, int degree){
   int temp = 0;
   if(degree >= 0){
     drive_right(speeed);
+    if(startheading + degree > 180){
+      
+      temp = -(360 - startheading - degree);
+      while(heading < temp || heading > 0){
+        poll_heading();
+      }
+    }
+    else{
+      
+      while(heading < startheading + degree){
+        //digitalWrite(13, HIGH);
+        //Serial.println((int)heading);
+        poll_heading();        
+      }
+    }
+  }
+  else{
+    drive_left(speeed);
+    if(startheading - degree < -180){
+      temp = 360 + startheading - degree;
+      while(heading > temp || heading < 0){
+        poll_heading();
+      }
+    }
+    while(heading > startheading + degree){
+      poll_heading();
+    }
+  }
+  drive_stop();
+}
+
+void drive_degrees_r_r(int speeed, int degree){
+  int startheading = heading;
+  int temp = 0;
+  if(degree >= 0){
+    drive_right_backwards(speeed);
+    if(startheading + degree > 180){
+      
+      temp = -(360 - startheading - degree);
+      while(heading < temp || heading > 0){
+        poll_heading();
+      }
+    }
+    else{
+      
+      while(heading < startheading + degree){
+        //digitalWrite(13, HIGH);
+        //Serial.println((int)heading);
+        poll_heading();        
+      }
+    }
+  }
+  else{
+    drive_left(speeed);
+    if(startheading - degree < -180){
+      temp = 360 + startheading - degree;
+      while(heading > temp || heading < 0){
+        poll_heading();
+      }
+    }
+    while(heading > startheading + degree){
+      poll_heading();
+    }
+  }
+  drive_stop();
+}
+
+void drive_degrees_r_l(int speeed, int degree){
+  int startheading = heading;
+  int temp = 0;
+  if(degree >= 0){
+    drive_left_forward(speeed);
+    if(startheading + degree > 180){
+      
+      temp = -(360 - startheading - degree);
+      while(heading < temp || heading > 0){
+        poll_heading();
+      }
+    }
+    else{
+      
+      while(heading < startheading + degree){
+        //digitalWrite(13, HIGH);
+        //Serial.println((int)heading);
+        poll_heading();        
+      }
+    }
+  }
+  else{
+    drive_left(speeed);
+    if(startheading - degree < -180){
+      temp = 360 + startheading - degree;
+      while(heading > temp || heading < 0){
+        poll_heading();
+      }
+    }
+    while(heading > startheading + degree){
+      poll_heading();
+    }
+  }
+  drive_stop();
+}
+
+void drive_degrees_l_l(int speeed, int degree){
+  int startheading = heading;
+  int temp = 0;
+  if(degree >= 0){
+    drive_left_backwards(speeed);
+    if(startheading + degree > 180){
+      
+      temp = -(360 - startheading - degree);
+      while(heading < temp || heading > 0){
+        poll_heading();
+      }
+    }
+    else{
+      
+      while(heading < startheading + degree){
+        //digitalWrite(13, HIGH);
+        //Serial.println((int)heading);
+        poll_heading();        
+      }
+    }
+  }
+  else{
+    drive_left(speeed);
+    if(startheading - degree < -180){
+      temp = 360 + startheading - degree;
+      while(heading > temp || heading < 0){
+        poll_heading();
+      }
+    }
+    while(heading > startheading + degree){
+      poll_heading();
+    }
+  }
+  drive_stop();
+}
+
+void drive_degrees_l_r(int speeed, int degree){
+  int startheading = heading;
+  int temp = 0;
+  if(degree >= 0){
+    drive_left_forward(speeed);
     if(startheading + degree > 180){
       
       temp = -(360 - startheading - degree);
@@ -441,11 +589,27 @@ void command(int cmd, double degsec, int speeed){
       drive_degrees(speeed * 64, degsec);
       break;
 
+    case 1://right with left
+      drive_degrees_r_l(speeed * 64, degsec);
+      break;
+
+    case 2://right with right
+      drive_degrees_r_r(speeed * 64, degsec);
+      break;
+
     case 3://turn left
       drive_degrees(speeed * 64, degsec);
       break;
 
-     case 6://forward
+    case 4://left with right
+      drive_degrees_l_r(speeed * 64, degsec);
+      break;
+
+    case 5://left with left
+      drive_degrees_l_l(speeed * 64, degsec);
+      break;
+
+    case 6://forward
       drive_forward(speeed * 64);
       delay(degsec * 100);
       drive_stop();
