@@ -1,0 +1,16 @@
+import serial
+
+port = serial.Serial("\dev\ttyAMA0",baudrate=9600,timeout=3.0)
+#sensor1 is middle front sensor
+#sensor2 is left front sensor
+#sensor3 is right front sensor
+#sensor4 is rear sensor
+while !goal:
+	while !seeGreen:
+		port.write("left 60")
+	while seeGreen:
+		port.write("forward")
+		if(sensor1==1 or sensor2==1 or sensor3==1):
+			port.write("right 63")
+			
+			
