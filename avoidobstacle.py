@@ -12,21 +12,23 @@ if ("""object is red"""):
 else:
     radius = 1
 
-port.write("~2632")
+readSerial()
+dist = sensor1data
 
-while (angle < 90):
-    #repeats until on the opposite side of object
-    port.read("getdist")
-    while(dist >= radius + 0.2 or dist <= radius - 0.2):
-        port.read("getsensor4")
-        port.write("~60.21")
-    oldAngle = angle
-    if (dist < radius):
-        #turn 5 degrees right by running left motor forward
-        port.write("~1052")
+while(dist > radius):
+    port.write("~60.22") #until the robot gets too close the object move forward
+
+port.write("~2632") #turn right 63 deg
+
+while (angle < 90): #repeats until on the opposite side of object
+    readSerial()
+    dist = sensor4data
+    if not(radius - 0.2 < dist < radius + 0.2):
+        if (dist <= radius): #if the robot is too close to the obstacle
+            port.write("~1052")
+        else (dist >= radius): #if the robot is too far from the obstacle
+            port.write("~4052")
     else:
-        #turn 5 degrees left by running right motor forward
-        port.write("~4052")
-        
+        port.write("~60.22")
 
-port.write("~1902")
+port.write("~1902") #turns right 90 deg

@@ -3,30 +3,33 @@ import picamera
 import time
 
 def encounterObj(objectColor):
-	#assigns the distance the robot should stay around the obstacle
+        #assigns the distance the robot should stay around the obstacle
 	if (objectColor == Red):
-		radius = 3
+                radius = 3
 	else:
 		radius = 1
 
-	port.write("~2632")
+        readSerial()
+        dist = sensor1data
 
-	while (angle < 90):
-		#repeats until on the opposite side of object
-		dist = sensor4Data
-		while(dist >= radius + 0.2 or dist <= radius - 0.2):
-			readSerial()
-			dist = sensor4Data
-			port.write("~6021")
-		if (dist < radius):
-			#turn 5 degrees right by running left motor forward
-			port.write("~1052")
-		else:
-			#turn 5 degrees left by running right motor forward
-			port.write("~4052")
-			
+        while(dist > radius):
+                port.write("~60.22") #until the robot gets too close the object move forward
 
-	port.write("~1902")
+        port.write("~2632") #turn right 63 deg
+
+        while (angle < 90): #repeats until on the opposite side of object
+            readSerial()
+            dist = sensor4data
+            if not(radius - 0.2 < dist < radius + 0.2):
+                if (dist <= radius): #if the robot is too close to the obstacle
+                    port.write("~1052")
+                else (dist >= radius): #if the robot is too far from the obstacle
+                    port.write("~4052")
+            else:
+                port.write("~60.22")
+
+        port.write("~1902") #turns right 90 deg
+
 
 
 def readSerial():
