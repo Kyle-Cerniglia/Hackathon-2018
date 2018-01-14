@@ -4,29 +4,31 @@ import time
 
 def encounterObj(objectColor):
 	#assigns the distance the robot should stay around the obstacle
-	if (objectColor == Red):
+	if (objectColor == red):
 		radius = 3
 	else:
 		radius = 1
 
-	port.write("~2632")
+	readSerial()
+	dist = sensor1data
 
-	while (angle < 90):
-		#repeats until on the opposite side of object
-		dist = sensor4Data
-		while(dist >= radius + 0.2 or dist <= radius - 0.2):
-			readSerial()
-			dist = sensor4Data
-			port.write("~6021")
-		if (dist < radius):
-			#turn 5 degrees right by running left motor forward
-			port.write("~1052")
+	while(dist > radius):
+		port.write("~60.22") #until the robot gets too close the object move forward
+
+	port.write("~2632") #turn right 63 deg
+
+	while (angle < 90): #repeats until on the opposite side of object
+		readSerial()
+		dist = sensor4data
+		if not(radius - 0.2 < dist < radius + 0.2):
+			if (dist <= radius): #if the robot is too close to the obstacle
+				port.write("~1052")
+			else (dist >= radius): #if the robot is too far from the obstacle
+				port.write("~4052")
 		else:
-			#turn 5 degrees left by running right motor forward
-			port.write("~4052")
-			
+			port.write("~60.22")
 
-	port.write("~1902")
+	port.write("~1902") #turns right 90 deg
 
 
 def readSerial():
@@ -61,35 +63,57 @@ global sensor1 = 0
 global sensor2 = 0
 global sensor3 = 0
 global sensor4 = 0
-
+'''
+#test for read and write
 while True:
 	readSerial()
 	port.write("~6201")
 	time.sleep(1)
 	port.write("~8000")
-#camera = picamera.PiCamera()
+'''	
+camera = picamera.PiCamera()
 
 for x in range(0,6): #does an inital sweep of surroundings looking for green objective
-	#camera.capture('image.jpg')
-	#objectType = identifyImage('image.jpg')
+	camera.capture('image.jpg')
+	objectType = identifyImage('image.jpg')
 	if(objectType == green):
 		seeGreen = 1
 		break
 	port.write("left 60")#left 60
-while goal != 1:	
+while goal != 1:
 	while seeGreen != 1:
+		port.write("6203")#forward 2 seconds
 		readSerial()
-		port.write("left 60")#left 60
-		readSerial()
+		fcounter += 1
 		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
+			port.write("8000")#stop
+			camera.capture('image.jpg')
+			objectType = identifyImage('image.jpg')
 			encounterObj(objectType)
 			sensor1 = 0
 			sensor2 = 0
 			sensor3 = 0
 			sensor4 = 0
+		elif(fcounter == 5):
+			for x in range(0,6): #does an inital sweep of surroundings looking for green objective
+				camera.capture('image.jpg')
+				objectType = identifyImage('image.jpg')
+				if(objectType == green):
+					seeGreen = 1
+					break
+				port.write("left 60")#left 60
+		if(seeGreen == 1):
+			break
 	while seeGreen == 1:
-		port.write("forward")#forward
+		port.write("6203")#forward 2 seconds 
+		readSerial()
 		if(sensor1 == 1 or sensor2 == 1 or sensor3 == 1):
+			port.write("8000")#stop
+			camera.capture('image.jpg')
+			objectType = identifyImage('image.jpg')
+			if(objectType == green):
+				goal = 1;
+				break
 			encounterObj(objectType)
 			sensor1 = 0
 			sensor2 = 0
