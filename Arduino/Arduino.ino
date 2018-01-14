@@ -35,6 +35,7 @@ int timenew = 0;
 int gyrooffset = 350;
 double heading = 0;
 double oldheading = 0;
+char txpacket[29];
 
 LSM6 imu;
 
@@ -49,6 +50,8 @@ void drive_right_forward(int speeed);
 void drive_right_backwards(int speeed);
 void drive_left_forward(int speeed);
 void drive_left_backwards(int speeed);
+void drive_degrees(int speeed, int degree);
+void packet_tx();
 
 void setup() {
   
@@ -75,17 +78,18 @@ void setup() {
 
   Serial.begin(9600);
   Wire.begin();
-  /*
+  
   if (!imu.init()){
     Serial.println("Failed to detect and initialize IMU!");
     while (1);
   }
   imu.enableDefault();
-  */
+  
 }
 
 void loop() {
-  drive_stop();
+  poll_heading();
+  packet_tx();
 }
 
 double IR_convert(int range){//Converts IR sensor data into inches
@@ -183,5 +187,96 @@ void drive_left_forward(int speeed){
 
 void drive_left_backwards(int speeed){
   analogWrite(MOTOR_LB, speeed);
+}
+
+void drive_degrees(int speeed, int degree){
+  int startheading = heading;
+  if(degree > 0){
+    drive_right(speeed);
+    if(startheading + degree > 180){
+      while(heading < startheading + degree){
+        poll_heading();
+      }
+    }
+    else{
+      while(heading < startheading + degree){
+        poll_heading();
+      }
+    }
+    
+  }
+  else{
+    drive_left(speeed);
+    while(heading > startheading + degree){
+      poll_heading();
+    }
+  }
+  drive_stop;
+}
+
+void packet_tx(){
+  int temp = 0;
+  Serial1.print("start");
+  temp = (int)(analogRead(IR_FC_RANGE) / 10);
+  if(temp < 100){
+    Serial1.print("0");
+  }
+  if(temp < 10){
+    Serial1.print("0");
+  }
+  Serial1.print(temp);
+  Serial1.print(",");
+  temp = (int)(analogRead(IR_FL_RANGE) / 10);
+  if(temp < 100){
+    Serial1.print("0");
+  }
+  if(temp < 10){
+    Serial1.print("0");
+  }
+  Serial1.print(temp);
+  Serial1.print(",");
+  temp = (int)(analogRead(IR_FR_RANGE) / 10);
+  if(temp < 100){
+    Serial1.print("0");
+  }
+  if(temp < 10){
+    Serial1.print("0");
+  }
+  Serial1.print(temp);
+  Serial1.print(",");
+  temp = (int)(analogRead(IR_B_RANGE) / 10);
+  if(temp < 100){
+    Serial1.print("0");
+  }
+  if(temp < 10){
+    Serial1.print("0");
+  }
+  Serial1.print(temp);
+  Serial1.print(",");
+  temp = (int)heading;
+  if(temp >= 0){
+    Serial1.print("+");
+  }
+  else{
+    Serial1.print("-");
+  }
+  if(temp >= 0){
+    if(temp < 100){
+    Serial1.print("0");
+    }
+    if(temp < 10){
+      Serial1.print("0");
+    }
+  }
+  else{
+    if(temp > -100){
+      Serial1.print("0");
+    }
+    if(temp > -10){
+      Serial1.print("0");
+    }
+  }
+  Serial1.print(abs(temp));
+  Serial1.print("stop");  
 }
 
